@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="column">
+    <div class="box">
+        <form method="post">
+            <h2 class="title">Log in</h2>
+
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            {% for hidden_field in form.hidden_fields %}
+                {{ hidden_field.errors }}
+                {{ hidden_field }}
+            {% endfor %}
+
+            {% for field in form.visible_fields %}
+                <div class="field">
+                    <label class="label">{{ field.label_tag }}</label>
+                    <div class="control">
+                        {{ field }}
+                    </div>
+                    <p class="help">{{ field.errors }}</p>
+                    <p class="help">{{ field.help_text }}</p>
+                </div>
+            {% endfor %}
+
+            <input class="button" type="submit" value="Login">
+            </form>
+            <br>
+            <a class="button is-small" href="{% url 'YourArea:dashboard' %}">Back to dashboard</a>
+            <!-- <a href="{% url 'YourArea:password_reset' %}">Reset password</a> -->
+            <a class="button is-small" href="{% url 'YourArea:register' %}">Register</a>
+    </div>
+    
+</div>
+{% endblock %}

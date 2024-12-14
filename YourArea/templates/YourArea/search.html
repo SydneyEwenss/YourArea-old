@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% load custom_tags %}
+
+{% block content %}
+
+<div class="container">
+    <h1 class="title">Search</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="field">
+            <div class="control">
+            <input class="input" type="text" placeholder="Search YourArea" name="search">
+            </div>
+        </div>
+        <button class="button is-grey" type="submit">Search</button>
+    </form>
+
+    <hr>
+
+    <div class="tabs is-large is-boxed">
+        <ul>
+            <li class="is-active" data-target="posts"><a>Posts</a></li>
+            <li data-target="areas"><a>Areas</a></li>
+        </ul>
+    </div>
+
+    {% if search %}
+    <h1 class="title">Showing results for {{ search }}:</h1>
+        
+    <div class="" id="tab-content">
+        <div class="" id="posts">
+            {% show_posts searched %}
+        </div>
+    </div>
+    <div class="" id="tab-content">
+        <div class="is-hidden" id="areas">
+            
+            {% show_area_list searched_profiles %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    const tabs = document.querySelectorAll('.tabs li');
+    const tabContentBoxes = document.querySelectorAll('#tab-content > div')
+
+    tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(item => item.classList.remove('is-active'))
+            tab.classList.add('is-active');
+
+            const target = tab.dataset.target;
+            tabContentBoxes.forEach(box => {
+                if (box.getAttribute('id') === target) {
+                    box.classList.remove('is-hidden');
+                    console.log(box);
+                } else {
+                    box.classList.add('is-hidden');
+                }
+            })
+        })
+    })
+</script>
+
+{% endblock content %}

@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+
+{% load custom_tags %}
+
+{% block head %}
+<style>
+    .container {
+        /* margin: 0 25rem; */
+        max-width: 900px;
+        min-width: none;
+    }
+
+
+    .background {
+        {% if profile.background_image %}
+        background-image: url("{{profile.background_image.url}}");
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover; /* Optional: ensures the image covers the entire background */
+        background-position: center;
+        {% endif %}
+    }
+
+    .column {
+        background-color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+
+<div class="column profile">
+
+    {% if profile.profile_image %}
+        <img src="{{ profile.profile_image.url }}" alt="">
+    {% endif %}
+    <div class="block mb-0">
+        <h1 class="title is-1 mb-0">
+            {% if profile.display_name %}
+            {{profile.display_name}}
+            {% else %}
+            {{profile.user.username}}
+            {% endif %}
+        </h1>
+        <p class="is-4 has-text-grey">@{{profile.user.username}}</p>
+        {% if profile.profile_bio %}
+        {{profile.profile_bio}}
+        <!-- <iframe id="output" sandbox="allow-scripts"></iframe> -->
+        {% endif %}
+
+        <script>
+            const html = "{{profile.profile_bio}}";
+            const output = document.getElementById('output');
+            output.srcdoc = html;
+        </script>
+    </div>
+
+    {% if profile.spotify_id %}
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/{{profile.spotify_id}}?utm_source=generator" width="100%" height="100" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    {% endif %}
+
+    <div class="level">
+        {% if profile.youtube_link %}
+        <div class="level-item">
+                <a href="{{ profile.youtube_link }}" target="new"><i class="fa-brands fa-youtube"></i></a>
+        </div>
+        {% endif %}
+        {% if profile.twitch_link %}
+        <div class="level-item">
+                <a href="{{ profile.twitch_link }}" target="new"><i class="fa-brands fa-twitch"></i></a>
+        </div>
+        {% endif %}
+        {% if profile.tiktok_link %}
+        <div class="level-item">  
+                <a href="{{ profile.tiktok_link }}" target="new"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+        {% endif %}
+        {% if profile.instagram_link %}
+        <div class="level-item">
+                <a href="{{ profile.instagram_link }}" target="new"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+        {% endif %}
+        {% if profile.custom_link %}
+        <div class="level-item">
+                <a href="{{ profile.custom_link }}" target="new"><i class="fa-solid fa-link"></i></a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="level">
+        <div class="level-item"><a href="{% url 'YourArea:followers' profile.user.id %}"><p>{{profile.followed_by.all|length}} followers</p></a></div>
+        <div class="level-item"><a href="{% url 'YourArea:following' profile.user.id %}"><p>{{profile.follows.all|length}} following</p></a></div>
+        <div class="level-item"><p>{{profile.user.posts.all|length}} posts</p></div>
+    </div>
+
+    {% if request.user %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="columns">
+            {% if profile in user.profile.follows.all %}
+            <div class="column is-6">
+                <button class="button is-danger" name="follow" value="unfollow">
+                    Unfollow
+                </button>
+            </div>
+            {% else %}
+            <div class="column is-6">
+                <button class="button is-success" name="follow" value="follow">
+                    Follow
+                </button>
+            </div>
+            {% endif %}
+            {% if request.user.id == profile.user.id %}
+            <div class="column is-6">
+                <a class="button is-success is-centred" href="{% url 'YourArea:update_area' %}">Update profile</a>
+            </div>
+            {% endif %}
+            </div>
+        </form>
+    {% endif %}
+    
+    <div class="box">
+        <h1 class="title">{{profile.display_name}}'s interests</h1>
+        <table class="table is-bordered is-fullwidth">
+            <tbody>
+                <tr>
+                    <th>
+                        <p>General</p>
+                    </th>
+                    <td>
+                        {{ profile.general_interests }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <p>Music</p>
+                    </th>
+                    <td>
+                        {{ profile.music_interests }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        Television
+                    </th>
+                    <td>
+                        {{ profile.television_interests }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        Movies
+                    </th>
+                    <td>
+                        {{ profile.movies_interests }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        Books
+                    </th>
+                    <td>
+                        {{ profile.books_interests }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+
+<div class="column is-8">
+    <div class="content">
+        {% if request.user.username == profile.user.username %}
+        <a id="add-post" class="button mb-5">Add post</a>
+        {% endif %}
+        {% show_posts posts %}
+    </div>
+
+</div>
+
+<div class="modal" id="post-modal">
+    <div class="modal-background"></div>
+    <div class="modal-content has-background-dark py-5 px-5">
+        <div class="block">
+            <div class="block">
+                <h2 class="title is-2 has-text-light">Add a Post</p>
+            </div>
+            <div class="block">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button class="button is-success is-fullwidth is-medium mt-5"
+                            type="submit">Post
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const addPostButton = document.getElementById("add-post");
+        const modalbg = document.querySelector('.modal-background');
+        const modal = document.querySelector('.modal')
+
+        addPostButton.addEventListener('click', () => {
+            modal.classList.add('is-active');
+        });
+
+        modalbg.addEventListener('click', () => {
+            modal.classList.remove('is-active');
+        });
+</script>
+
+{% endblock content %}

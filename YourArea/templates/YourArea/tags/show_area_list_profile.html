@@ -1,0 +1,78 @@
+<style>
+    .box {
+      width: 20rem;
+      height: 20rem;
+      padding: 5px;
+    }
+
+    @media (max-width: 768px) {
+        .box {
+            width: 100%;
+            margin: 1rem 0rem;
+        }
+    }
+
+    .profile_block {
+        background-color: white;
+        width: 100%;
+        height: 100%;
+        padding: 5px;
+        border-radius: 3px;
+        border-color: black;
+    }
+    
+  </style>
+      <script>console.log("{{profiles}}")</script>
+  <div class="columns is-multiline is-centered">
+  {% for profile in profiles %}
+        <style>
+            .outline-{{profile.id}} {
+                background-color: {{profile.favourite_colour}};
+                }
+        </style>
+
+        <script>console.log("{{profile.favourite_colour}}")</script>
+  
+        <div class="column is-3">
+          <a href="{% url 'YourArea:profile' profile.id %}">
+            <div class="box outline-{{profile.id}}">
+              <div class="block profile_block">
+                <div class="columns is-gapless">
+                  <div class="column">
+                    <figure class="image is-128x128">
+                      {% if profile.profile_image %}
+                        <img src="{{ profile.profile_image.url }}" alt="">
+                      {% else %}
+                      <img src="https://bulma.io/assets/images/placeholders/256x256.png"
+                           alt="Placeholder image">
+                      {% endif %}
+                      </figure>
+                  </div>
+                  <div class="column">
+                    <p class="title is-4">
+                      {% if profile.display_name %}
+                        {{ profile.display_name }}
+                      {% else %}
+                        {{ profile.user.username }}
+                      {% endif %}
+                    </p>
+                    <p class="subtitle is-6">
+                      @{{ profile.user.username }}
+                    </p>
+                  </div>
+                </div>
+  
+                {% if profile.profile_bio %}
+                  <p>
+                    {{ profile.profile_bio }}
+                  </p>
+                {% endif %}
+                  
+              </div>
+            </div>
+          </a>
+        </div>
+  
+  {% endfor %}
+  <div class="column"></div>
+  </div>

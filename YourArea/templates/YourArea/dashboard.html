@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% load custom_tags %}
+
+{% block content %}
+
+<div class="column">
+    <div class="tabs is-large is-boxed">
+        <ul>
+            <li class="is-active" data-target="all"><a>All</a></li>
+            <li data-target="following"><a>Following</a></li>
+        </ul>
+    </div>
+    
+    <div class="" id="tab-content">
+        <div class="" id="all">
+            {% show_posts posts %}
+        </div>
+        <div class="is-hidden" id="following">
+            {% if followed_posts %}
+                {% show_posts followed_posts %}
+            {% else %}
+            <h1 class="title">Hmm it seems you don't follow anyone...</h1>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    const tabs = document.querySelectorAll('.tabs li');
+    const tabContentBoxes = document.querySelectorAll('#tab-content > div')
+
+    tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(item => item.classList.remove('is-active'))
+            tab.classList.add('is-active');
+
+            const target = tab.dataset.target;
+            tabContentBoxes.forEach(box => {
+                if (box.getAttribute('id') === target) {
+                    box.classList.remove('is-hidden');
+                } else {
+                    box.classList.add('is-hidden');
+                }
+            })
+        })
+    })
+</script>
+
+
+{% endblock content %}

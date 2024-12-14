@@ -1,0 +1,76 @@
+<div class="dropdown">
+    <div class="dropdown-trigger">
+        <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+          <span>{{ notifications.count }} notifications</span>
+          <span class="icon is-small">
+            <i class="fas fa-angle-down" aria-hidden="true"></i>
+          </span>
+        </button>
+      </div>
+      <div class="dropdown-menu" id="dropdown-menu" role="menu">
+        <div class="dropdown-content">
+            {% for notification in notifications %}
+            {% if notification.post %}
+                {% if notification.notification_type == 1 %}
+                    <div class="notification has-text-dark">
+                        <a href="{% url 'YourArea:post_notification' notification.pk notification.post.pk %}">@{{ notification.from_user }} liked your post</a>
+                        <button class="delete" onclick="removeNotification(`{% url 'YourArea:notification_delete' notification.pk %}`, `{{ request.path }}`)"></button>
+                    </div>
+                {% elif notification.notification_type == 2 %}
+                    <div class="notification has-text-dark">
+                        <a href="{% url 'YourArea:post_notification' notification.pk notification.post.pk %}">@{{ notification.from_user }} commented on your post</a>
+                        <button class="delete" onclick="removeNotification(`{% url 'YourArea:notification_delete' notification.pk %}`, `{{ request.path }}`)"></button>
+                    </div>
+                {% endif %}
+            <!-- ctrl-z me -->
+            {% else %}
+                <div class="notification has-text-dark">
+                    <a href="{% url 'YourArea:follow_notification' notification.pk notification.from_user.profile.pk %}">@{{ notification.from_user }} followed you</a>
+                    <button class="delete" onclick="removeNotification(`{% url 'YourArea:notification_delete' notification.pk %}`, `{{ request.path }}`)"></button>
+                </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    const dropdown = document.querySelector('.dropdown');
+    const dropdown_trigger = document.querySelector('.dropdown-trigger');
+    dropdown_trigger.addEventListener('click', () => {
+            dropdown.classList.toggle('is-active')
+        })
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function removeNotification(removeNotificationURL, redirectURL) {
+        const csrftoken = getCookie('csrftoken');
+        let xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                if (xmlhttp.status == 200) {
+                    window.location.replace(redirectURL);
+                } else {
+                    alert('There was an error');
+                }
+            }
+        };
+
+        xmlhttp.open("DELETE", removeNotificationURL, true);
+        xmlhttp.setRequestHeader("X-CSRFToken", csrftoken);
+        xmlhttp.send();
+    }
+</script>

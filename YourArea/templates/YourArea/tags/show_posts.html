@@ -1,0 +1,54 @@
+{% for post in posts %}
+    <style>
+        .post-image {
+            border-radius: 2rem;
+        }
+    </style>
+
+    <div class="block">
+        <a href="{% url 'YourArea:post' post.id %}">
+            <div class="media">
+                <div class="media-left">
+                    <a href="{% url 'YourArea:profile' post.user.profile.id %}">
+                        <p class="image is-48x48">
+                            {% if post.user.profile.profile_image %}
+                                <img class="is-rounded" src="{{ post.user.profile.profile_image.url }}">
+                            {% else %}
+                                <img class="is-rounded" src="https://bulma.io/assets/images/placeholders/128x128.png" />
+                            {% endif %}
+                        </p>
+                    </a>
+                </div>
+                <div class="media-content is-fullwidth">
+                    {% if post.user.profile.display_name %}
+                    <p class="mb-0"><strong class="has-text-dark">{{ post.user.profile.display_name }}</strong> <small class="has-text-grey">@{{ post.user.username }}</small></p>
+                    {% else %}
+                    <p class="mb-0"><strong class="has-text-dark">{{ post.user.username }}</strong> <small class="has-text-grey">@{{ post.user.username }}</small></p>
+                    {% endif %}
+                    <a href="{% url 'YourArea:post' post.id %}">
+                        <p class="is-text has-text-grey-dark">{{post.body}}</p>
+                        {% if post.post_image %}
+                            <img class="post-image" src="{{ post.post_image.url }}" alt="">
+                        {% endif %}
+                    </a>
+                    <p>
+                        {% if user in post.likes.all %}
+                            <a href="{% url 'YourArea:post_like' post.id %}"><span class="icon has-text-danger"><i class="fa-solid fa-heart"></i></span></a>
+                        {% else %}
+                            <a href="{% url 'YourArea:post_like' post.id %}"><span class="icon has-text-dark"><i class="fa-regular fa-heart"></i></span></a>
+                        {% endif %}
+                        <a href="{% url 'YourArea:likes' post.id %}">{{ post.number_of_likes }}</a>
+                        <a href="{% url 'YourArea:post' post.id %}"><span class="icon has-text-dark"><i class="fa-regular fa-comment"></i></span></a>
+                        {% if request.user.username == post.user.username %}
+                            <a href="{% url 'YourArea:delete_post' post.id %}"><span class="icon has-text-dark"><i class="fa-solid fa-trash-can"></i></span></a>
+                        {% endif %}
+                    </p>
+                    <span class="tag is-small has-text-grey-light">
+                        {{ post.created_at }}
+                    </span>
+                    <hr>
+                </div>
+            </div>
+        </a>
+    </div>
+{% endfor %}

@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{% if post.post_image %}
+    <meta property="og:image" content="http://ohio-reduce.gl.at.ply.gg:7832{{ post.post_image.url }}" />
+{% endif %}
+    <meta property="og:url" content="{% url 'YourArea:post' post.id %}" />
+    <meta property="og:title" content="{{post.user.profile.display_name}} (@{{post.user.username}}) on YourArea" />
+    <meta property="og:description" content="{{post.body}}" />
+    <meta name="twitter:card" content="summary_large_image">
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container">
+    <div class="box">
+        <a href="{% url 'YourArea:profile' post.user.profile.id %}"><h1 class="title is-3">{{ post.user.username }}</h1></a>
+        {{post.body}}
+        <br>
+        {% if post.post_image %}
+            <img class="post-image" src="{{ post.post_image.url }}" alt="">
+        {% endif %}
+        <hr>
+        <p>
+            {% if user in post.likes.all %}
+                <a href="{% url 'YourArea:post_like' post.id %}"><span class="icon has-text-danger"><i class="fa-solid fa-heart"></i></span></a>
+            {% else %}
+                <a href="{% url 'YourArea:post_like' post.id %}"><span class="icon has-text-dark"><i class="fa-regular fa-heart"></i></span></a>
+            {% endif %}
+            {{ post.number_of_likes }}
+        </p>
+        <span class="is-small has-text-grey-light">
+            {{ post.created_at }}
+        </span>
+    </div>
+
+    <h1 class="title is-2">Comments:</h1>
+    <div class="block">
+        <div class="block">
+            <h2 class="title is-2">Add a Comment</p>
+        </div>
+        <div class="block">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="button is-success is-fullwidth is-medium mt-5"
+                        type="submit">Post
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% for comment in comments %}
+    {% if comment.is_parent %}
+        <div class="block">
+            <div class="media">
+                <div class="media-left">
+                    <p class="image is-48x48">
+                        {% if comment.user.profile.profile_image %}
+                            <img class="is-rounded" src="{{ comment.user.profile.profile_image.url }}">
+                        {% else %}
+                            <img class="is-rounded" src="https://bulma.io/assets/images/placeholders/128x128.png" />
+                        {% endif %}
+                    </p>
+                    
+                </div>
+                <div class="media-content">
+                    {% if comment.user.profile.display_name %}
+                    <p class="mb-0"><strong class="has-text-dark">{{ comment.user.profile.display_name }}</strong> <small class="has-text-grey">@{{ comment.user.username }}</small></p>
+                    {% else %}
+                    <p class="mb-0"><strong class="has-text-dark">{{ comment.user.username }}</strong> <small class="has-text-grey">@{{ comment.user.username }}</small></p>
+                    {% endif %}
+                    <p class="is-text has-text-grey-dark">{{comment.body}}</p>
+                    <p>
+                        {% if user in comment.likes.all %}
+                            <a href="{% url 'YourArea:comment_like' post.id comment.id %}"><span class="icon has-text-danger"><i class="fa-solid fa-heart"></i></span></a>
+                        {% else %}
+                            <a href="{% url 'YourArea:comment_like' post.id comment.id %}"><span class="icon has-text-dark"><i class="fa-regular fa-heart"></i></span></a>
+                        {% endif %}
+                        <a href="{% url 'YourArea:likes' comment.id %}">{{ comment.number_of_likes }}</a>
+                        <a onclick="commentReplyToggle('{{ comment.id }}')"><span class="icon has-text-dark"><i class="fa-regular fa-comment"></i></span></a>
+                    </p>
+                    <span class="tag is-small has-text-grey-light">
+                        {{ comment.created_at }}
+                    </span>
+                    <div class="block mt-5 is-hidden" id="{{ comment.id }}">
+                        <form method="post" action="{% url 'YourArea:comment_reply' post.pk comment.pk %}">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button class="button is-success is-fullwidth is-medium mt-5"
+                                    type="submit">Post
+                            </button>
+                        </form>
+                        <hr>
+                    </div>
+
+                    {% for comment in comment.children %}
+                        <div class="media">
+                            <div class="media-left">
+                                <p class="image is-48x48">
+                                    {% if comment.user.profile.profile_image %}
+                                        <img class="is-rounded" src="{{ comment.user.profile.profile_image.url }}">
+                                    {% else %}
+                                        <img class="is-rounded" src="https://bulma.io/assets/images/placeholders/128x128.png" />
+                                    {% endif %}
+                                </p>
+                                
+                            </div>
+                            <div class="media-content">
+                                {% if comment.user.profile.display_name %}
+                                <p class="mb-0"><strong class="has-text-dark">{{ comment.user.profile.display_name }}</strong> <small class="has-text-grey">@{{ comment.user.username }}</small></p>
+                                {% else %}
+                                <p class="mb-0"><strong class="has-text-dark">{{ comment.user.username }}</strong> <small class="has-text-grey">@{{ comment.user.username }}</small></p>
+                                {% endif %}
+                                <p class="is-text has-text-grey-dark">{{comment.body}}</p>
+                                <p>
+                                    {% if user in comment.likes.all %}
+                                        <a href="{% url 'YourArea:comment_like' post.id comment.id %}"><span class="icon has-text-danger"><i class="fa-solid fa-heart"></i></span></a>
+                                    {% else %}
+                                        <a href="{% url 'YourArea:comment_like' post.id comment.id %}"><span class="icon has-text-dark"><i class="fa-regular fa-heart"></i></span></a>
+                                    {% endif %}
+                                    <a href="{% url 'YourArea:likes' comment.id %}">{{ comment.number_of_likes }}</a>
+                                    <a onclick="commentReplyToggle('{{ comment.id }}')"><span class="icon has-text-dark"><i class="fa-regular fa-comment"></i></span></a>
+                                </p>
+                                <span class="tag is-small has-text-grey-light">
+                                    {{ comment.created_at }}
+                                </span>
+                                <div class="block mt-5 is-hidden" id="{{ comment.id }}">
+                                    <form method="post" action="{% url 'YourArea:comment_reply' post.pk comment.parent.pk %}">
+                                        {% csrf_token %}
+                                        {{ form.as_p }}
+                                        <button class="button is-success is-fullwidth is-medium mt-5"
+                                                type="submit">Post
+                                        </button>
+                                    </form>
+                                    <hr>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% endfor %}
+    
+</div>
+
+<script>
+    function commentReplyToggle(parent_id) {
+        const row = document.getElementById(parent_id);
+
+        if (row.classList.contains('is-hidden')) {
+            row.classList.remove('is-hidden');
+        } else {
+            row.classList.add('is-hidden');
+        }
+    }
+</script>
+
+{% endblock %}
